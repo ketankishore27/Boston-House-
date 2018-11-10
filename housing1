@@ -9,9 +9,9 @@ from copy import deepcopy
 
 # ------------------------> Getting the data ---------------------------------------------------
 
-dataset_train = pd.read_csv('train.csv').iloc[:, 1:]
+dataset_train = pd.read_csv('train.csv').iloc[:, 1:-1]
 dataset_test = pd.read_csv('test.csv').iloc[:, 1:]
-dataset_test['SalePrice'] = 0
+#dataset_test['SalePrice'] = 0
 
 # ------------------------> Filling numerical spaces with mean (training set)--------------------
 col_num = []
@@ -64,6 +64,7 @@ dataset_test = pd.concat([dataset_test_num, dataset_test_cat], axis = 1)
 # --------------------> concatening training and test set ------------------------------------
 
 dataset = pd.concat([dataset_train, dataset_test], axis = 0, join = 'inner')
+#dataset = dataset.drop('SalePrice', axis = 1, inplace = True)
 
 # --------------------> Filling Null values with the mode ------------------------------------
 
