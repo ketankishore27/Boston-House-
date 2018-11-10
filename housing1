@@ -1,0 +1,38 @@
+# ------------------------> Importing the required Libraries -----------------------------------
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from copy import deepcopy
+
+# ------------------------> Getting the data ---------------------------------------------------
+
+dataset = pd.read_csv('train.csv')
+X1 = dataset.iloc[:, 1:-1]
+y = dataset.iloc[:, -1]
+dataset1 = pd.read_csv('test.csv')
+
+# ------------------------> Preprocessing the data ---------------------------------------------
+
+col_num = []
+for i in X1.columns:
+  if (type(X1[i][1]) == np.int64) or (type(X1[i][1]) == np.float64):
+    col_num.append(i)
+    
+dataset_num = dataset[col_num]
+
+from sklearn.preprocessing import Imputer
+imputer = Imputer(missing_values = np.nan, strategy = 'mean')
+dataset_num = pd.DataFrame(imputer.fit_transform(dataset_num), columns = col_num)
+
+col_cat = []
+for i in X1.columns:
+  if(type(X1[i][1]) != np.int64) and (type(X1[i][1]) != np.float64):
+    col_cat.append(i)
+    
+dataset_cat = X1[col_cat]
+
+dataset_cat = dataset_cat.fillna(dataset_cat.mode().iloc[0])
+
+from sklearn
