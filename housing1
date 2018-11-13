@@ -74,6 +74,7 @@ dataset.fillna(dataset.mode().iloc[0], inplace = True)
 dataset = pd.get_dummies(dataset, drop_first=True)
 dataset_backup = deepcopy(dataset)
 dataset = deepcopy(dataset_backup)
+dataset_scaled = deepcopy(dataset)
 
 # --------------------> Spliiting the dataset into training and test -------------------------
 
@@ -176,13 +177,13 @@ y_pred = gregressor.predict(X_test)
 # ----------------------> Trying XGBoost Algo ------------------------------------
 
 from xgboost import XGBRegressor
-xregressor = XGBRegressor(learning_rate = 0.05, n_estimators = 1000, reg_lambda = 10, n_jobs = -1)
+xregressor = XGBRegressor(learning_rate = 0.01, n_estimators = 1000, reg_lambda = 5, verbose = 10, n_jobs = -1)
 xregressor.fit(X_train, y_train)
-
-y_pred = xregressor.predict(X_test)
 
 score = cross_val_score(xregressor, X = X_train, y = y_train, cv = 10)
 print(score.mean())
+
+y_pred = xregressor.predict(X_test)
 
 parameter = [{'learning_rate' : [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1], 
               'n_estimators' : [i for i in range(100, 1000, 100)],
@@ -197,3 +198,56 @@ score = cross_val_score(xregressor, X = X_train, y = y_train, cv = 10)
 print(score.mean())
 
 y_pred = grid_search.predict(X_test)
+
+# ----------------------> Trying Stochastic Gradient Descent Algorithm -----------
+
+from sklearn.linear_model import SGDRegressor
+sgregressor = SGDRegressor(alpha = 100, max_iter = 1000)
+sgregressor.fit(X_train, y_train)
+
+score = cross_val_score(sgregressor, X = X_train, y = y_train, cv = 10)
+print(score.mean())
+
+# ----------------------> Trying Adaboost Regressor -------------------------------
+
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import AdaBoostRegressor
+aregressor = AdaBoostRegressor(base_estimator = DecisionTreeRegressor(max_depth = 3), 
+                               n_estimators = 1000, learning_rate = 0.01, loss = 'linear')
+aregressor.fit(X_train, y_train)
+
+
+score = cross_val_score(aregressor, X = X_train, y = y_train, cv = 10)
+print(score.mean())
+
+# ----------------------> Trying Artificial Neural Networks -----------------------
+
+from sklearn.preprocessing import StandardScaler
+sc_x = StandardScaler()
+sc_y = StandardScaler()
+X_train1 = sc_x.fit_transform(X_train)
+X_test1 = sc_x.transform(X_test)
+
+import keras
+from keras.models import Sequential
+from keras.layers import Dense
+
+classifier = Sequential()
+
+classifier.add(Dense(input_dim = 245, init = 'uniform', output_dim = 245))
+
+classifier.add(Dense(input_dim = 245, init = 'uniform', output_dim = 245))
+
+classifier.add(Dense(input_dim = 245, init = 'uniform', output_dim = 245))
+
+classifier.add(Dense(input_dim = 245, init = 'uniform', output_dim = 245))
+
+classifier.add(Dense(input_dim = 245, init = 'uniform', output_dim = 245))
+
+classifier.add(Dense(input_dim = 245, init = 'uniform', output_dim = 1))
+
+classifier.compile(loss = 'mean_squared_error', optimizer = 'adam')
+
+classifier.fit(X_train1, y_train, batch_size = 10, nb_epoch = 100)
+
+y_pred = classifier.predict(X_test1)
